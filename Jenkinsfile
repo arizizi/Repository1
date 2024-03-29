@@ -1,33 +1,31 @@
 pipeline {
-  agent any
-  stages {
-    stage('Clone repository') {
-      steps {
-        checkout scm
-      }
-    }
+    agent any
 
-    stage('Build image') {
-      steps {
-        script {
-          def app = docker.build("arizizi/Repository1")
+    stages {
+        stage('Clone repository') {
+            steps {
+                checkout scm
+            }
         }
 
-      }
-    }
-
-    stage('Push image') {
-      steps {
-        script {
-          docker.withRegistry('https://registry.hub.docker.com', 'dockerhub') {
-            app.push("${env.BRANCH_NAME}-${env.BUILD_NUMBER}")
-            app.push("${env.BRANCH_NAME}-latest")
-            // signal the orchestrator that there is a new version
-          }
+        stage('Build image') {
+            steps {
+                script {
+                    def app = docker.build("arizizi/repository1")
+                }
+            }
         }
 
-      }
+        stage('Push image') {
+            steps {
+                script {
+                    docker.withRegistry('https://registry.hub.docker.com', 'dockerhub') {
+                        app.push("${env.BRANCH_NAME}-${env.BUILD_NUMBER}")
+                        app.push("${env.BRANCH_NAME}-latest")
+                        // signal the orchestrator that there is a new version
+                    }
+                }
+            }
+        }
     }
-
-  }
 }
